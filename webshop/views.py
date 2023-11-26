@@ -19,6 +19,10 @@ from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.pagination import PageNumberPagination
+# Django filter
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class Home(TemplateView):
     template_name = 'webshop/home.html'    
@@ -302,7 +306,9 @@ def product_page(request, category_slug, product_slug):
 
 class CategoryApi(viewsets.ModelViewSet):
     queryset = Category.objects.all() 
-    serializer_class = CategorySerializer 
+    serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['id', 'category_name']
 
 class StockApi(viewsets.ModelViewSet):
     queryset = Stock.objects.all()
