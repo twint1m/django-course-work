@@ -9,7 +9,16 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.contrib.auth.models import User
 from random import shuffle
 from .utils import ShopViews
-
+# Django rest_framework imports
+from rest_framework import viewsets
+from .models import Category, Stock, ProductReview
+from .serializers import CategorySerializer, StockSerializer, ProductReviewSerializer
+# Django Q filter
+from django.db.models import Q
+# Django pagination
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.pagination import PageNumberPagination
 
 class Home(TemplateView):
     template_name = 'webshop/home.html'    
@@ -286,3 +295,25 @@ def product_page(request, category_slug, product_slug):
         'stocks': stocks,
     }
     return render(request, 'webshop/product_page.html', context)
+
+
+
+#--------------------------api---------------------
+
+class CategoryApi(viewsets.ModelViewSet):
+    queryset = Category.objects.all() 
+    serializer_class = CategorySerializer 
+
+class StockApi(viewsets.ModelViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+class ProductReviewApiPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = 'page_size'
+    max_page_size = 10 
+
+class ProductReviewApi(viewsets.ModelViewSet):
+    queryset = ProductReview.objects.filter(is_recommend=True)
+    serializer_class = ProductReviewSerializer
+    pagination_class = ProductReviewApiPagination 
