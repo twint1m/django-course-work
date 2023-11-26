@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% extends 'webshop/base.html' %}
+<html lang="en">
+  <head>
+    {% load static %}
+  </head>
+  <body>
+    {% block content %}
+    <div class="slider-area">
+			<div class="block-slider block-slider4">
+				<ul class="" id="bxslider-home4">
+					<li>
+						<img src="{% static 'webshop/img/laptops.png' %}" alt="Slide">
+						<div class="caption-group">
+							<h2 class="caption title">
+								Приобретайте новый ноутбук со скидкой!
+							</h2>
+							<a class="caption button-radius" href="{% url 'webshop:category_page' 'laptops' %}"><span class="icon"></span>Купить</a>
+						</div>
+					</li>
+					<li><img src="{% static 'webshop/img/chairs.png' %}" alt="Slide">
+						<div class="caption-group">
+							<h2 class="caption title">
+								Приобретайте новое игровое кресло со скидкой!
+							</h2>
+							<a class="caption button-radius" href="{% url 'webshop:category_page' 'gaming-chairs' %}"><span class="icon"></span>Купить</a>
+						</div>
+					</li>
+					<li><img src="{% static 'webshop/img/iphone.png' %}" alt="Slide">
+						<div class="caption-group">
+							<h2 class="caption title">
+                                Приобретайте новый телефон со скидкой!
+							</h2>
+							<a class="caption button-radius" href="{% url 'webshop:product_page' 'smartphones' 'iphone-12' %}"><span class="icon"></span>Купить</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+    </div>
+    <div class="maincontent-area">
+        <div class="zigzag-bottom"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="latest-product">
+                        <h2 class="section-title">Новинки</h2>
+                        <div class="latest-products">
+                            {% if latest_products %}
+                            {% for prod in latest_products %}
+                            <a class="single-product" href="{% url 'webshop:product_page' prod.product_category.category_slug prod.product_slug %}">
+                                <div class="product-f-image">
+                                    <img src="{{ prod.product_image.url }}" alt="{{ prod.product_name }} image">
+                                </div>
+                                <div class="latest-product-bottom">
+                                    <h2>{{ prod.product_name }}</h2>
+                                    <div class="product-carousel-price">
+                                        <ins>{{ prod.product_price }} ₽</ins>
+                                    </div> 
+                                </div>
+                            </a>
+                            {% endfor %}
+                            {% endif %}
+                            </div>           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+  {% endblock %}
+</html>
