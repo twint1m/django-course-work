@@ -2,7 +2,8 @@ from django import forms
 from django.contrib import admin
 from django_admin_json_editor import JSONEditorWidget
 from .models import *
-
+from import_export.admin import ImportExportModelAdmin
+from . import models
 
 # Schema for json field in products. For json editor.
 DATA_SCHEMA = {
@@ -118,7 +119,8 @@ class StockAdmin(admin.ModelAdmin):
         return ', '.join([str(product) for product in obj.products.all()])
     get_stock_names.short_description = 'Products'
 
+class ProductExport(ImportExportModelAdmin, admin.ModelAdmin):
+    ...     
 
-
-
-    
+admin.site.unregister(models.Product)
+admin.site.register(models.Product, ProductExport)

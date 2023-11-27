@@ -12,7 +12,7 @@ from .utils import ShopViews
 # Django rest_framework imports
 from rest_framework import viewsets
 from .models import Category, Stock, ProductReview
-from .serializers import CategorySerializer, StockSerializer, ProductReviewSerializer
+from .serializers import CategorySerializer, StockSerializer, ProductReviewSerializer, ProductSerializer
 # Django Q filter
 from django.db.models import Q
 # Django pagination
@@ -23,6 +23,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+# action
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class Home(TemplateView):
     template_name = 'webshop/home.html'    
@@ -320,6 +323,32 @@ class ProductReviewApiPagination(PageNumberPagination):
     max_page_size = 10 
 
 class ProductReviewApi(viewsets.ModelViewSet):
-    queryset = ProductReview.objects.filter(is_recommend=True)
+    queryset = ProductReview.objects.all()
     serializer_class = ProductReviewSerializer
-    pagination_class = ProductReviewApiPagination 
+    pagination_class = ProductReviewApiPagination
+
+    @action(methods=['GET'], detail=False)
+    def recommended_reviews(self, request):
+        return Response("Получены рекомендованные отзывы")
+
+    @action(methods=['POST'], detail=True)
+    def mark_as_helpful(self, request, pk=None):
+        return Response("Отзыв помечен как полезный")
+
+
+class ProductApi(viewsets.ModelViewSet):
+    queryset = Product.objects.filter(product_is_aviable=True, product_price__lt=10000)
+    serializer_class = ProductSerializer
+
+#--------------Django history for Category model---------------------
+
+def category_history_view(request, category_id):
+    category = Category.objects.get(pk=category_id)
+    history = category.history.all()
+
+    context = {
+        'category': category,
+        'history': history,
+    }
+
+    return render(request, 'category_history.html', context)

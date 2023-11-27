@@ -1,12 +1,13 @@
 from django.db import models
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
-
+from simple_history.models import HistoricalRecords
 
 class Category(models.Model):
     category_name = models.CharField(max_length=100, db_index=True, verbose_name="Category name")
     category_slug = models.SlugField(max_length=100, unique=True)
-    
+    history = HistoricalRecords(inherit=True)
+
     class Meta:
         ordering = ('category_name',)
         verbose_name = 'Category'

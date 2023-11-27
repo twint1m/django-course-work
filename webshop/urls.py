@@ -3,7 +3,7 @@ from . import views
 from .views import product_page
 # Django rest_framework imports
 from rest_framework import routers
-from .views import CategoryApi, StockApi, ProductReviewApi
+from .views import CategoryApi, StockApi, ProductReviewApi, ProductApi
 
 
 app_name = 'webshop'
@@ -12,6 +12,7 @@ router = routers.DefaultRouter()
 router.register(r'api/category', CategoryApi)
 router.register(r'api/stock', StockApi)
 router.register(r'api/product-review', ProductReviewApi)
+router.register(r'api/product', ProductApi)
 
 urlpatterns = [
     # path('', views.Home.as_view(), name='home'),
