@@ -16,12 +16,8 @@ from .serializers import CategorySerializer, StockSerializer, ProductReviewSeria
 # Django Q filter
 from django.db.models import Q
 # Django pagination
-from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.pagination import PageNumberPagination
 # Django filter
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 # action
 from rest_framework.decorators import action
@@ -308,7 +304,9 @@ def product_page(request, category_slug, product_slug):
 #--------------------------api---------------------
 
 class CategoryApi(viewsets.ModelViewSet):
-    queryset = Category.objects.all() 
+    queryset = Category.objects.filter(
+            (Q(category_name__icontains='А') | Q(category_name__icontains='М')) & ~Q(category_name='Мониторы')
+        )
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['id', 'category_name']
@@ -337,7 +335,12 @@ class ProductReviewApi(viewsets.ModelViewSet):
 
 
 class ProductApi(viewsets.ModelViewSet):
-    queryset = Product.objects.filter(product_is_aviable=True, product_price__lt=10000)
+    queryset = Product.objects.filter(
+        Q(product_category__exact=1) |
+        Q(product_category__exact=2) & 
+        Q(product_price__lt=5000) &
+        ~Q(product_is_aviable__exact=True)
+        )
     serializer_class = ProductSerializer
 
 #--------------Django history for Category model---------------------
