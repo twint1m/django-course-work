@@ -122,5 +122,35 @@ class StockAdmin(admin.ModelAdmin):
 class ProductExport(ImportExportModelAdmin, admin.ModelAdmin):
     ...     
 
+
+from import_export.admin import ExportActionModelAdmin, ImportExportMixin
+# Проверка пользователя на статус superuser
+class ProductExport(ImportExportMixin, admin.ModelAdmin):
+    def has_import_permission(self, request):
+        if request.user.is_superuser:
+            return True
+        return False
+    
+
+from import_export.admin import ExportActionModelAdmin
+from .models import Product
+
+# Экспорт действий админа
+class CustomExportActionModelAdmin(ExportActionModelAdmin):
+    def export_custom_action(self, request, queryset):
+        import csv
+        from django.http import HttpResponse
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+
+        writer = csv.writer(response)
+        for Product in queryset:
+            writer.writerow([obj.field1, obj.field2, obj.field3])
+
+        return response
+    export_custom_action.short_description = "Export Custom Action"
+    actions = [export_custom_action]
+
 admin.site.unregister(models.Product)
 admin.site.register(models.Product, ProductExport)

@@ -12,7 +12,7 @@ from .utils import ShopViews
 # Django rest_framework imports
 from rest_framework import viewsets
 from .models import Category, Stock, ProductReview
-from .serializers import CategorySerializer, StockSerializer, ProductReviewSerializer, ProductSerializer
+from .serializers import CategorySerializer, StockSerializer, ProductReviewSerializer, ProductSerializer, UserInfoSerializer
 # Django Q filter
 from django.db.models import Q
 # Django pagination
@@ -22,6 +22,7 @@ from rest_framework import filters
 # action
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 class Home(TemplateView):
     template_name = 'webshop/home.html'    
@@ -333,15 +334,34 @@ class ProductReviewApi(viewsets.ModelViewSet):
     def mark_as_helpful(self, request, pk=None):
         return Response("Отзыв помечен как полезный")
 
+    def get_queryset(self):
+        user = self.request.user
+        return ProductReview.objects.filter(author_id=user)
+        # Фильтрация по авторизованному пользователю
 
 class ProductApi(viewsets.ModelViewSet):
-    queryset = Product.objects.filter(
-        Q(product_category__exact=1) |
-        Q(product_category__exact=2) & 
-        Q(product_price__lt=5000) &
-        ~Q(product_is_aviable__exact=True)
-        )
     serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(
+            Q(product_category__exact=1) |
+            Q(product_category__exact=2) & 
+            Q(product_price__lt=5000)
+            # & ~Q(product_is_aviable__exact=True)
+        )
+
+        is_available = self.request.query_params.get('is_available')
+        if is_available is not None:
+            queryset = queryset.filter(product_is_aviable=is_available)
+
+        return queryset
+
+class UserInfoApi(viewsets.ModelViewSet):
+    queryset = UserInfo.objects.all()
+    serializer_class = UserInfoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user']
 
 #--------------Django history for Category model---------------------
 
